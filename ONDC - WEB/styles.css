@@ -598,6 +598,35 @@ body::before {
   transform: none !important;
 }
 
+/* Accept / Reject order action buttons */
+.order-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.btn-accept {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+}
+
+.btn-accept:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+}
+
+.btn-reject {
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  color: white;
+  box-shadow: 0 2px 8px rgba(244, 63, 94, 0.25);
+}
+
+.btn-reject:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(244, 63, 94, 0.4);
+}
+
 /* ===== Seller App Cards ===== */
 .seller-apps-grid {
   display: grid;

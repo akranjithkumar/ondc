@@ -71,6 +71,19 @@ const app = (() => {
         return res.json();
     }
 
+    async function apiPut(path, body = {}) {
+        const res = await fetch(`${API_BASE}${path}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || `PUT ${path} failed: ${res.status}`);
+        }
+        return res.json();
+    }
+
     // === Dashboard Overview ===
     async function loadDashboard() {
         try {
@@ -541,7 +554,7 @@ const app = (() => {
 
         if (orderList.length === 0) {
             tbody.innerHTML = `
-                <tr><td colspan="9">
+                <tr><td colspan="10">
                     <div class="empty-state">
                         <div class="empty-icon">🛒</div>
                         <h3>No Orders Yet</h3>
@@ -577,8 +590,48 @@ const app = (() => {
                     <td><span class="badge ${statusClass}"><span class="badge-dot"></span> ${order.status}</span></td>
                     <td><span class="badge ${priorityClass}">${order.priority}</span></td>
                     <td style="color:var(--text-muted);font-size:12px">${dateStr}</td>
+                    <td>
+                        ${order.status === 'PENDING' ? `
+                            <div class="order-actions">
+                                <button class="btn btn-accept btn-sm" onclick="app.acceptOrder(${order.id})" title="Accept Order">
+                                    ✅ Accept
+                                </button>
+                                <button class="btn btn-reject btn-sm" onclick="app.rejectOrder(${order.id})" title="Reject Order">
+                                    ❌ Reject
+                                </button>
+                            </div>
+                        ` : `<span class="badge ${statusClass}" style="font-size:11px">${order.status}</span>`}
+                    </td>
                 </tr>`;
         }).join('');
+    }
+
+    // === Accept / Reject Orders ===
+    async function acceptOrder(orderId) {
+        if (!confirm('Accept this order? This will reserve inventory for all items.')) return;
+        try {
+            await apiPut(`/api/orders/${orderId}/accept`);
+            showToast('Order accepted — inventory reserved successfully', 'success');
+            loadOrders();        // refresh orders table
+            loadDashboard();     // refresh dashboard stats
+        } catch (err) {
+            console.error('Failed to accept order:', err);
+            showToast(err.message || 'Failed to accept order', 'error');
+        }
+    }
+
+    async function rejectOrder(orderId) {
+        const reason = prompt('Enter rejection reason (optional):');
+        if (reason === null) return;  // user cancelled the prompt
+        try {
+            await apiPut(`/api/orders/${orderId}/reject`, { reason: reason || 'No reason provided' });
+            showToast('Order rejected', 'error');
+            loadOrders();
+            loadDashboard();
+        } catch (err) {
+            console.error('Failed to reject order:', err);
+            showToast(err.message || 'Failed to reject order', 'error');
+        }
     }
 
     // === Toast Notifications ===
@@ -727,6 +780,8 @@ const app = (() => {
         submitAddInventory,
         toggleNotifications,
         clearNotifications,
+        acceptOrder,
+        rejectOrder,
         showToast
     };
 })();
