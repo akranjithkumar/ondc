@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Unified Vendor Control Platform for ONDC Q-Commerce — manage inventory, orders, and seller apps from a single dashboard."
+    />
+    <title>ONDC Vendor Dashboard — Unified Control Platform</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="logo-icon">⚡</div>
+          <div>
+            <h1>ONDC Vendor</h1>
+            <span class="subtitle">Control Platform</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <a class="nav-item active" data-tab="overview" id="nav-overview">
+          <span class="nav-icon">📊</span>
+          <span>Overview</span>
+        </a>
+        <a class="nav-item" data-tab="inventory" id="nav-inventory">
+          <span class="nav-icon">📦</span>
+          <span>Inventory</span>
+          <span class="nav-badge" id="low-stock-badge" style="display: none"
+            >0</span
+          >
+        </a>
+        <a class="nav-item" data-tab="seller-apps" id="nav-seller-apps">
+          <span class="nav-icon">🔗</span>
+          <span>Seller Apps</span>
+        </a>
+        <a class="nav-item" data-tab="orders" id="nav-orders">
+          <span class="nav-icon">🛒</span>
+          <span>Orders</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="vendor-info">
+          <div class="vendor-avatar" id="vendor-avatar">R</div>
+          <div class="vendor-details">
+            <div class="vendor-name" id="vendor-name-sidebar">Loading...</div>
+            <div class="vendor-business" id="vendor-business-sidebar">—</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-search">
+          <span class="search-icon">🔍</span>
+          <input type="text" placeholder="Search products, orders..." class="search-input" />
+        </div>
+        <div class="header-actions">
+          <div class="notification-wrapper" onclick="app.toggleNotifications()">
+            <button class="btn-icon">
+              🔔
+              <span class="notification-badge" id="notification-count" style="display:none">0</span>
+            </button>
+            <div class="notification-dropdown" id="notification-dropdown">
+              <div class="dropdown-header">
+                <span>Notifications</span>
+                <button class="btn-text btn-xs" onclick="app.clearNotifications(event)">Clear all</button>
+              </div>
+              <div class="dropdown-content" id="notification-list">
+                <div class="empty-notifications">No new notifications</div>
+              </div>
+            </div>
+          </div>
+          <div class="user-profile">
+            <div class="user-avatar" id="header-avatar">V</div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ===== OVERVIEW TAB ===== -->
+      <section class="tab-content active" id="tab-overview">
+        <div class="page-header">
+          <h2>Dashboard Overview</h2>
+          <p>Real-time insights across all your ONDC operations</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card blue">
+            <div class="stat-header">
+              <div class="stat-icon">📋</div>
+            </div>
+            <div class="stat-value" id="stat-total-orders">—</div>
+            <div class="stat-label">Total Orders</div>
+          </div>
+          <div class="stat-card emerald">
+            <div class="stat-header">
+              <div class="stat-icon">✅</div>
+            </div>
+            <div class="stat-value" id="stat-fulfilled-orders">—</div>
+            <div class="stat-label">Fulfilled Orders</div>
+          </div>
+          <div class="stat-card amber">
+            <div class="stat-header">
+              <div class="stat-icon">⏳</div>
+            </div>
+            <div class="stat-value" id="stat-pending-orders">—</div>
+            <div class="stat-label">Pending Orders</div>
+          </div>
+          <div class="stat-card violet">
+            <div class="stat-header">
+              <div class="stat-icon">⭐</div>
+            </div>
+            <div class="stat-value" id="stat-fulfillment-rate">—</div>
+            <div class="stat-label">Fulfillment Rate</div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-grid">
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">Orders by Status</div>
+            </div>
+            <div class="chart-container" style="height: 250px; position: relative;">
+              <canvas id="statusChart"></canvas>
+            </div>
+          </div>
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div class="panel-title">Revenue Overview</div>
+            </div>
+            <div class="chart-container" style="height: 250px; position: relative;">
+              <canvas id="revenueChart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Second Row -->
+        <div class="panel-grid">
+          <!-- Quick Stats Panel -->
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">Platform Status</div>
+                <div class="panel-subtitle">
+                  Outlets, products &amp; seller apps
+                </div>
+              </div>
+            </div>
+            <div class="stats-grid" style="margin-bottom: 0">
+              <div class="stat-card blue" style="padding: 16px">
+                <div
+                  class="stat-value"
+                  style="font-size: 24px"
+                  id="stat-products"
+                >
+                  —
+                </div>
+                <div class="stat-label">Products</div>
+              </div>
+              <div class="stat-card emerald" style="padding: 16px">
+                <div
+                  class="stat-value"
+                  style="font-size: 24px"
+                  id="stat-outlets"
+                >
+                  —
+                </div>
+                <div class="stat-label">Active Outlets</div>
+              </div>
+              <div class="stat-card violet" style="padding: 16px">
+                <div
+                  class="stat-value"
+                  style="font-size: 24px"
+                  id="stat-seller-apps"
+                >
+                  —
+                </div>
+                <div class="stat-label">Seller Apps</div>
+              </div>
+              <div class="stat-card amber" style="padding: 16px">
+                <div
+                  class="stat-value"
+                  style="font-size: 24px"
+                  id="stat-rating"
+                >
+                  —
+                </div>
+                <div class="stat-label">Vendor Rating</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Low Stock Alerts -->
+          <div class="glass-panel">
+            <div class="panel-header">
+              <div>
+                <div class="panel-title">⚠️ Low Stock Alerts</div>
+                <div class="panel-subtitle" id="low-stock-count">
+                  Checking...
+                </div>
+              </div>
+              <button
+                class="btn btn-ghost btn-sm"
+                onclick="app.switchTab('inventory')"
+              >
+                View All →
+              </button>
+            </div>
+            <div class="alerts-list" id="alerts-list">
+              <div class="empty-state" style="padding: 24px">
+                <div class="spinner"></div>
+                <p style="margin-top: 12px">Loading alerts...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== INVENTORY TAB ===== -->
+      <section class="tab-content" id="tab-inventory">
+        <div class="page-header">
+          <h2>Inventory Management</h2>
+          <p>
+            Update stock quantities — changes sync automatically to all
+            connected seller apps
+          </p>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Product Inventory</div>
+              <div class="panel-subtitle">
+                Edit stock → click Update → syncs to seller apps
+              </div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <button class="btn btn-success" onclick="app.openAddInventoryModal()">
+                ➕ Add Inventory
+              </button>
+              <button class="btn btn-primary" onclick="app.syncAllInventory()">
+                🔄 Sync All to Seller Apps
+              </button>
+            </div>
+          </div>
+
+          <table class="data-table" id="inventory-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Outlet</th>
+                <th>Total Stock</th>
+                <th>Reserved</th>
+                <th>Available</th>
+                <th>Status</th>
+                <th>Seller App Sync</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="inventory-tbody">
+              <tr>
+                <td colspan="9">
+                  <div class="empty-state">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 12px">Loading inventory...</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== SELLER APPS TAB ===== -->
+      <section class="tab-content" id="tab-seller-apps">
+        <div class="page-header">
+          <h2>Connected Seller Apps</h2>
+          <p>
+            Monitor health and inventory sync status of all ONDC seller apps
+          </p>
+        </div>
+
+        <div class="seller-apps-grid" id="seller-apps-grid">
+          <div class="empty-state">
+            <div class="spinner"></div>
+            <p style="margin-top: 12px">Loading seller apps...</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== ORDERS TAB ===== -->
+      <section class="tab-content" id="tab-orders">
+        <div class="page-header">
+          <h2>Order Management</h2>
+          <p>View and manage incoming ONDC orders</p>
+        </div>
+
+        <div class="glass-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Recent Orders</div>
+              <div class="panel-subtitle">Orders from all seller apps</div>
+            </div>
+          </div>
+          <table class="data-table" id="orders-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Seller App</th>
+                <th>Items</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Created</th>
+              </tr>
+            </thead>
+            <tbody id="orders-tbody">
+              <tr>
+                <td colspan="8">
+                  <div class="empty-state">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 12px">Loading orders...</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <!-- Add Inventory Modal -->
+    <div class="modal-overlay" id="add-inventory-modal" style="display:none">
+      <div class="modal">
+        <div class="modal-header">
+          <h3>➕ Add Inventory Item</h3>
+          <button class="modal-close" onclick="app.closeAddInventoryModal()">×</button>
+        </div>
+        <form id="add-inventory-form" onsubmit="app.submitAddInventory(event)">
+          <div class="form-group">
+            <label for="add-product-id">Product ID</label>
+            <input type="number" id="add-product-id" placeholder="e.g. 1" min="1" required>
+          </div>
+          <div class="form-group">
+            <label for="add-outlet-id">Outlet ID</label>
+            <input type="number" id="add-outlet-id" placeholder="e.g. 1" min="1" required>
+          </div>
+          <div class="form-group">
+            <label for="add-total-stock">Stock Quantity</label>
+            <input type="number" id="add-total-stock" placeholder="e.g. 100" min="0" required>
+          </div>
+          <div class="form-group">
+            <label for="add-reorder-level">Reorder Level (optional)</label>
+            <input type="number" id="add-reorder-level" placeholder="e.g. 10" min="0">
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-ghost" onclick="app.closeAddInventoryModal()">Cancel</button>
+            <button type="submit" class="btn btn-success" id="add-inventory-submit-btn">Add Inventory</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
