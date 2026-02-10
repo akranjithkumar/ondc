@@ -541,7 +541,7 @@ const app = (() => {
 
         if (orderList.length === 0) {
             tbody.innerHTML = `
-                <tr><td colspan="8">
+                <tr><td colspan="9">
                     <div class="empty-state">
                         <div class="empty-icon">🛒</div>
                         <h3>No Orders Yet</h3>
@@ -570,6 +570,7 @@ const app = (() => {
                 <tr>
                     <td><code style="color:var(--accent-cyan);font-size:12px">${escapeHtml(order.ondcOrderId)}</code></td>
                     <td>${escapeHtml(order.customerName || '—')}</td>
+                    <td>${order.items && order.items.length ? order.items.map(i => escapeHtml(i.productName)).join(', ') : '—'}</td>
                     <td>${escapeHtml(order.sellerAppName || '—')}</td>
                     <td>${order.items ? order.items.length : 0}</td>
                     <td><strong>₹${(order.totalAmount || 0).toFixed(2)}</strong></td>
