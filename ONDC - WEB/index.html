@@ -63,7 +63,8 @@
       <header class="top-header">
         <div class="header-search">
           <span class="search-icon">🔍</span>
-          <input type="text" placeholder="Search products, orders..." class="search-input" />
+          <input type="text" placeholder="Search products, orders..." class="search-input" id="global-search" autocomplete="off" />
+          <div class="search-results-dropdown" id="search-results" style="display:none"></div>
         </div>
         <div class="header-actions">
           <div class="notification-wrapper" onclick="app.toggleNotifications()">
@@ -257,6 +258,10 @@
           </div>
 
           <table class="data-table" id="inventory-table">
+            <div class="filter-banner" id="inventory-filter-banner" style="display:none">
+              <span class="filter-banner-text" id="inventory-filter-text"></span>
+              <button class="btn btn-ghost btn-sm" onclick="app.clearInventoryFilter()">✕ Clear Filter</button>
+            </div>
             <thead>
               <tr>
                 <th>Product</th>

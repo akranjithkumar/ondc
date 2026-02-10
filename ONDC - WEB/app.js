@@ -20,6 +20,7 @@ const app = (() => {
     // === Init ===
     function init() {
         setupNavigation();
+        setupSearch();
         loadDashboard();
         loadSellerApps();
     }
@@ -105,6 +106,7 @@ const app = (() => {
         document.getElementById('vendor-name-sidebar').textContent = data.vendorName || 'Vendor';
         document.getElementById('vendor-business-sidebar').textContent = 'ONDC Vendor';
         document.getElementById('vendor-avatar').textContent = (data.vendorName || 'V')[0];
+        document.getElementById('header-avatar').textContent = (data.vendorName || 'V')[0];
 
         // Stats cards
         document.getElementById('stat-total-orders').textContent = data.totalOrders || 0;
@@ -759,6 +761,179 @@ const app = (() => {
         showToast('Notifications cleared', 'default');
     }
 
+    // === Global Search ===
+    function setupSearch() {
+        const input = document.getElementById('global-search');
+        const dropdown = document.getElementById('search-results');
+        let debounceTimer = null;
+
+        input.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            const query = input.value.trim().toLowerCase();
+            if (query.length < 2) {
+                dropdown.style.display = 'none';
+                return;
+            }
+            debounceTimer = setTimeout(() => performSearch(query), 250);
+        });
+
+        input.addEventListener('focus', () => {
+            const query = input.value.trim().toLowerCase();
+            if (query.length >= 2) performSearch(query);
+        });
+
+        // Close dropdown on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.header-search')) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+
+    async function performSearch(query) {
+        const dropdown = document.getElementById('search-results');
+        const results = [];
+
+        // Search orders (already loaded or fetch)
+        try {
+            if (!orders || orders.length === 0) {
+                orders = await apiGet(`/api/orders/vendor/${VENDOR_ID}`);
+            }
+            orders.forEach(order => {
+                const matchFields = [
+                    order.ondcOrderId,
+                    order.customerName,
+                    order.sellerAppName,
+                    order.status,
+                    ...(order.items || []).map(i => i.productName)
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                if (matchFields.includes(query)) {
+                    results.push({
+                        type: 'order',
+                        icon: '🛒',
+                        title: order.ondcOrderId,
+                        subtitle: `${order.customerName || '—'} · ₹${(order.totalAmount || 0).toFixed(2)} · ${order.status}`,
+                        tab: 'orders'
+                    });
+                }
+            });
+        } catch (e) { /* ignore */ }
+
+        // Search inventory
+        try {
+            if (!inventoryData || inventoryData.length === 0) {
+                inventoryData = await apiGet(`/api/inventory/vendor/${VENDOR_ID}`);
+            }
+            inventoryData.forEach(inv => {
+                const matchFields = [
+                    inv.productName,
+                    inv.productSku,
+                    inv.outletName
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                if (matchFields.includes(query)) {
+                    results.push({
+                        type: 'inventory',
+                        icon: '📦',
+                        title: inv.productName,
+                        subtitle: `SKU: ${inv.productSku || '—'} · Stock: ${inv.availableStock ?? inv.totalStock} · ${inv.outletName || ''}`,
+                        tab: 'inventory',
+                        searchQuery: query
+                    });
+                }
+            });
+        } catch (e) { /* ignore */ }
+
+        // Search seller apps
+        try {
+            if (!sellerApps || sellerApps.length === 0) {
+                sellerApps = await apiGet(`/api/seller-apps/vendor/${VENDOR_ID}`);
+            }
+            sellerApps.forEach(sa => {
+                const matchFields = [
+                    sa.name,
+                    sa.apiEndpoint,
+                    sa.status
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                if (matchFields.includes(query)) {
+                    results.push({
+                        type: 'seller-app',
+                        icon: '🔗',
+                        title: sa.name,
+                        subtitle: `${sa.status} · ${sa.apiEndpoint || ''}`,
+                        tab: 'seller-apps'
+                    });
+                }
+            });
+        } catch (e) { /* ignore */ }
+
+        // Render results
+        if (results.length === 0) {
+            dropdown.innerHTML = '<div class="search-no-results">No results found</div>';
+        } else {
+            dropdown.innerHTML = results.slice(0, 10).map(r => {
+                const clickAction = r.searchQuery
+                    ? `app.filterInventory('${r.searchQuery.replace(/'/g, "\\'")}')`
+                    : `app.switchTab('${r.tab}')`;
+                return `
+                <div class="search-result-item" onclick="${clickAction}; document.getElementById('search-results').style.display='none';">
+                    <span class="search-result-icon">${r.icon}</span>
+                    <div class="search-result-text">
+                        <div class="search-result-title">${escapeHtml(r.title)}</div>
+                        <div class="search-result-subtitle">${escapeHtml(r.subtitle)}</div>
+                    </div>
+                    <span class="search-result-type">${r.type}</span>
+                </div>
+            `}).join('');
+        }
+        dropdown.style.display = 'block';
+    }
+
+    // === Inventory Filter from Search ===
+    function filterInventory(query) {
+        // Switch tab UI without triggering loadInventory
+        document.querySelectorAll('.nav-item[data-tab]').forEach(n => n.classList.remove('active'));
+        const navItem = document.querySelector('.nav-item[data-tab="inventory"]');
+        if (navItem) navItem.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        const tab = document.getElementById('tab-inventory');
+        if (tab) tab.classList.add('active');
+
+        const doFilter = () => {
+            const filtered = inventoryData.filter(inv => {
+                const matchFields = [
+                    inv.productName,
+                    inv.productSku,
+                    inv.outletName
+                ].filter(Boolean).join(' ').toLowerCase();
+                return matchFields.includes(query.toLowerCase());
+            });
+            renderInventoryTable(filtered);
+            // Show filter banner
+            const banner = document.getElementById('inventory-filter-banner');
+            const bannerText = document.getElementById('inventory-filter-text');
+            bannerText.textContent = `Showing ${filtered.length} result${filtered.length !== 1 ? 's' : ''} for "${query}"`;
+            banner.style.display = 'flex';
+        };
+
+        if (inventoryData && inventoryData.length > 0) {
+            doFilter();
+        } else {
+            apiGet(`/api/inventory/vendor/${VENDOR_ID}`).then(data => {
+                inventoryData = data;
+                doFilter();
+            });
+        }
+    }
+
+    function clearInventoryFilter() {
+        document.getElementById('inventory-filter-banner').style.display = 'none';
+        document.getElementById('global-search').value = '';
+        renderInventoryTable(inventoryData);
+    }
+
     // === Public API ===
     return {
         init,
@@ -774,6 +949,8 @@ const app = (() => {
         clearNotifications,
         acceptOrder,
         rejectOrder,
+        filterInventory,
+        clearInventoryFilter,
         showToast
     };
 })();
