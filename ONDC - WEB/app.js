@@ -470,14 +470,6 @@ const app = (() => {
                             <div class="metric-label">Requests</div>
                         </div>
                     </div>
-                    <div class="app-actions">
-                        <button class="btn btn-ghost btn-sm" onclick="app.checkHealth(${app_item.id})" id="health-btn-${app_item.id}">
-                            🏥 Health Check
-                        </button>
-                        <button class="btn btn-ghost btn-sm" onclick="app.toggleAppInventory(${app_item.id})">
-                            📦 Inventory
-                        </button>
-                    </div>
                     <div class="sync-status-list" id="app-inv-${app_item.id}"></div>
                 </div>`;
         }).join('');
