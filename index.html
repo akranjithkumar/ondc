@@ -63,7 +63,8 @@
       <header class="top-header">
         <div class="header-search">
           <span class="search-icon">🔍</span>
-          <input type="text" placeholder="Search products, orders..." class="search-input" />
+          <input type="text" placeholder="Search products, orders..." class="search-input" id="global-search" autocomplete="off" />
+          <div class="search-results-dropdown" id="search-results" style="display:none"></div>
         </div>
         <div class="header-actions">
           <div class="notification-wrapper" onclick="app.toggleNotifications()">
@@ -226,6 +227,78 @@
             </div>
           </div>
         </div>
+
+        <!-- All Inventory Table -->
+        <div class="glass-panel" style="margin-top: 24px">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">📦 All Inventory</div>
+              <div class="panel-subtitle" id="dashboard-inventory-count">Loading inventory...</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="app.switchTab('inventory')">
+              Manage Inventory →
+            </button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Outlet</th>
+                <th>Total Stock</th>
+                <th>Reserved</th>
+                <th>Available</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-inventory-tbody">
+              <tr>
+                <td colspan="7">
+                  <div class="empty-state">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 12px">Loading inventory...</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- All Orders Table -->
+        <div class="glass-panel" style="margin-top: 24px">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">🛒 All Orders</div>
+              <div class="panel-subtitle" id="dashboard-orders-count">Loading orders...</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="app.switchTab('orders')">
+              Manage Orders →
+            </button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Products</th>
+                <th>Items</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody id="dashboard-orders-tbody">
+              <tr>
+                <td colspan="7">
+                  <div class="empty-state">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 12px">Loading orders...</p>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <!-- ===== INVENTORY TAB ===== -->
@@ -243,20 +316,16 @@
             <div>
               <div class="panel-title">Product Inventory</div>
               <div class="panel-subtitle">
-                Edit stock → click Update → syncs to seller apps
+                Edit stock → click Update to save
               </div>
-            </div>
-            <div style="display:flex;gap:10px">
-              <button class="btn btn-success" onclick="app.openAddInventoryModal()">
-                ➕ Add Inventory
-              </button>
-              <button class="btn btn-primary" onclick="app.syncAllInventory()">
-                🔄 Sync All to Seller Apps
-              </button>
             </div>
           </div>
 
           <table class="data-table" id="inventory-table">
+            <div class="filter-banner" id="inventory-filter-banner" style="display:none">
+              <span class="filter-banner-text" id="inventory-filter-text"></span>
+              <button class="btn btn-ghost btn-sm" onclick="app.clearInventoryFilter()">✕ Clear Filter</button>
+            </div>
             <thead>
               <tr>
                 <th>Product</th>
@@ -266,13 +335,12 @@
                 <th>Reserved</th>
                 <th>Available</th>
                 <th>Status</th>
-                <th>Seller App Sync</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody id="inventory-tbody">
               <tr>
-                <td colspan="9">
+                <td colspan="8">
                   <div class="empty-state">
                     <div class="spinner"></div>
                     <p style="margin-top: 12px">Loading inventory...</p>
@@ -312,7 +380,7 @@
           <div class="panel-header">
             <div>
               <div class="panel-title">Recent Orders</div>
-              <div class="panel-subtitle">Orders from all seller apps</div>
+              <div class="panel-subtitle">Orders from all channels</div>
             </div>
           </div>
           <table class="data-table" id="orders-table">
@@ -320,12 +388,12 @@
               <tr>
                 <th>Order ID</th>
                 <th>Customer</th>
-                <th>Seller App</th>
+                <th>Product</th>
                 <th>Items</th>
                 <th>Amount</th>
                 <th>Status</th>
-                <th>Priority</th>
                 <th>Created</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="orders-tbody">

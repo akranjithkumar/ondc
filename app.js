@@ -20,6 +20,7 @@ const app = (() => {
     // === Init ===
     function init() {
         setupNavigation();
+        setupSearch();
         loadDashboard();
         loadSellerApps();
     }
@@ -71,16 +72,66 @@ const app = (() => {
         return res.json();
     }
 
+    async function apiPut(path, body = {}) {
+        const res = await fetch(`${API_BASE}${path}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.message || `PUT ${path} failed: ${res.status}`);
+        }
+        return res.json();
+    }
+
     // === Dashboard Overview ===
     async function loadDashboard() {
         try {
-            const [dashboardData, ordersData] = await Promise.all([
-                apiGet(`/api/dashboard/summary/${VENDOR_ID}`),
-                apiGet(`/api/orders/vendor/${VENDOR_ID}`)
+            // 1. Fetch all vendors
+            const vendors = await apiGet('/api/vendors');
+            const vendorIds = vendors.map(v => v.id);
+
+            // 2. Fetch dashboard summaries, inventory, and orders for ALL vendors in parallel
+            const [dashboardSummaries, inventoryArrays, allOrders] = await Promise.all([
+                Promise.all(vendorIds.map(id => apiGet(`/api/dashboard/summary/${id}`))),
+                Promise.all(vendorIds.map(id => apiGet(`/api/inventory/vendor/${id}`))),
+                apiGet('/api/orders')  // all orders across all vendors
             ]);
-            
-            renderDashboard(dashboardData);
-            renderCharts(ordersData);
+
+            // 3. Aggregate dashboard summaries
+            const aggregated = {
+                vendorName: [...new Set(vendors.map(v => v.name))].join(', '),
+                totalOrders: dashboardSummaries.reduce((s, d) => s + (d.totalOrders || 0), 0),
+                pendingOrders: dashboardSummaries.reduce((s, d) => s + (d.pendingOrders || 0), 0),
+                acceptedOrders: dashboardSummaries.reduce((s, d) => s + (d.acceptedOrders || 0), 0),
+                fulfilledOrders: dashboardSummaries.reduce((s, d) => s + (d.fulfilledOrders || 0), 0),
+                cancelledOrders: dashboardSummaries.reduce((s, d) => s + (d.cancelledOrders || 0), 0),
+                totalProducts: dashboardSummaries.reduce((s, d) => s + (d.totalProducts || 0), 0),
+                lowStockItems: dashboardSummaries.reduce((s, d) => s + (d.lowStockItems || 0), 0),
+                lowStockAlerts: dashboardSummaries.flatMap(d => d.lowStockAlerts || []),
+                totalOutlets: dashboardSummaries.reduce((s, d) => s + (d.totalOutlets || 0), 0),
+                activeOutlets: dashboardSummaries.reduce((s, d) => s + (d.activeOutlets || 0), 0),
+                totalSellerApps: dashboardSummaries.reduce((s, d) => s + (d.totalSellerApps || 0), 0),
+                healthySellerApps: dashboardSummaries.reduce((s, d) => s + (d.healthySellerApps || 0), 0),
+                vendorRating: vendors.length > 0
+                    ? dashboardSummaries.reduce((s, d) => s + (d.vendorRating || 0), 0) / vendors.length
+                    : 0,
+                fulfillmentRate: 0
+            };
+            if (aggregated.totalOrders > 0) {
+                aggregated.fulfillmentRate = Math.round(
+                    (aggregated.acceptedOrders + aggregated.fulfilledOrders) / aggregated.totalOrders * 100 * 100
+                ) / 100;
+            }
+
+            // 4. Merge all inventory across vendors
+            const allInventory = inventoryArrays.flat();
+
+            renderDashboard(aggregated);
+            renderCharts(allOrders);
+            renderDashboardInventory(allInventory);
+            renderDashboardOrders(allOrders);
         } catch (err) {
             console.error('Failed to load dashboard:', err);
             showToast('Failed to load dashboard data', 'error');
@@ -92,6 +143,7 @@ const app = (() => {
         document.getElementById('vendor-name-sidebar').textContent = data.vendorName || 'Vendor';
         document.getElementById('vendor-business-sidebar').textContent = 'ONDC Vendor';
         document.getElementById('vendor-avatar').textContent = (data.vendorName || 'V')[0];
+        document.getElementById('header-avatar').textContent = (data.vendorName || 'V')[0];
 
         // Stats cards
         document.getElementById('stat-total-orders').textContent = data.totalOrders || 0;
@@ -247,10 +299,98 @@ const app = (() => {
         `).join('');
     }
 
+    function renderDashboardInventory(items) {
+        const tbody = document.getElementById('dashboard-inventory-tbody');
+        const countEl = document.getElementById('dashboard-inventory-count');
+
+        if (!items || items.length === 0) {
+            countEl.textContent = 'No inventory records found';
+            tbody.innerHTML = `
+                <tr><td colspan="7">
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <h3>No Inventory</h3>
+                        <p>No inventory records found</p>
+                    </div>
+                </td></tr>`;
+            return;
+        }
+
+        countEl.textContent = `${items.length} items across all outlets`;
+        tbody.innerHTML = items.map(inv => {
+            const statusBadge = inv.isLowStock
+                ? '<span class="badge warning"><span class="badge-dot"></span> Low Stock</span>'
+                : '<span class="badge success"><span class="badge-dot"></span> In Stock</span>';
+
+            return `
+                <tr>
+                    <td><strong>${escapeHtml(inv.productName)}</strong></td>
+                    <td><code style="color:var(--text-muted);font-size:12px">${escapeHtml(inv.productSku)}</code></td>
+                    <td>${escapeHtml(inv.outletName)}</td>
+                    <td>${inv.totalStock}</td>
+                    <td>${inv.reservedStock}</td>
+                    <td><strong>${inv.availableStock}</strong></td>
+                    <td>${statusBadge}</td>
+                </tr>`;
+        }).join('');
+    }
+
+    function renderDashboardOrders(orderList) {
+        const tbody = document.getElementById('dashboard-orders-tbody');
+        const countEl = document.getElementById('dashboard-orders-count');
+
+        if (!orderList || orderList.length === 0) {
+            countEl.textContent = 'No orders found';
+            tbody.innerHTML = `
+                <tr><td colspan="7">
+                    <div class="empty-state">
+                        <div class="empty-icon">🛒</div>
+                        <h3>No Orders Yet</h3>
+                        <p>Orders will appear here when received</p>
+                    </div>
+                </td></tr>`;
+            return;
+        }
+
+        countEl.textContent = `${orderList.length} orders across all seller apps`;
+        tbody.innerHTML = orderList.map(order => {
+            const statusClass = order.status === 'FULFILLED' ? 'success'
+                              : order.status === 'ACCEPTED' ? 'info'
+                              : order.status === 'PENDING' ? 'warning'
+                              : order.status === 'CANCELLED' || order.status === 'REJECTED' ? 'danger'
+                              : 'violet';
+
+            const priorityClass = order.priority === 'CRITICAL' ? 'danger'
+                                : order.priority === 'HIGH' ? 'warning'
+                                : order.priority === 'MEDIUM' ? 'info' : 'success';
+
+            const dateStr = order.createdAt ? new Date(order.createdAt).toLocaleDateString('en-IN', {
+                day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+            }) : '—';
+
+            const products = order.items && order.items.length
+                ? order.items.map(i => escapeHtml(i.productName)).join(', ')
+                : '—';
+
+            return `
+                <tr>
+                    <td><code style="color:var(--accent-cyan);font-size:12px">${escapeHtml(order.ondcOrderId)}</code></td>
+                    <td>${escapeHtml(order.customerName || '—')}</td>
+                    <td>${products}</td>
+                    <td>${order.items ? order.items.length : 0}</td>
+                    <td><strong>₹${(order.totalAmount || 0).toFixed(2)}</strong></td>
+                    <td><span class="badge ${statusClass}"><span class="badge-dot"></span> ${order.status}</span></td>
+                    <td style="color:var(--text-muted);font-size:12px">${dateStr}</td>
+                </tr>`;
+        }).join('');
+    }
+
     // === Inventory ===
     async function loadInventory() {
         try {
-            inventoryData = await apiGet(`/api/inventory/vendor/${VENDOR_ID}`);
+            const vendors = await apiGet('/api/vendors');
+            const inventoryArrays = await Promise.all(vendors.map(v => apiGet(`/api/inventory/vendor/${v.id}`)));
+            inventoryData = inventoryArrays.flat();
             renderInventoryTable(inventoryData);
             updateNotifications(inventoryData);
         } catch (err) {
@@ -264,7 +404,7 @@ const app = (() => {
 
         if (items.length === 0) {
             tbody.innerHTML = `
-                <tr><td colspan="9">
+                <tr><td colspan="8">
                     <div class="empty-state">
                         <div class="empty-icon">📦</div>
                         <h3>No Inventory</h3>
@@ -293,7 +433,6 @@ const app = (() => {
                     <td>${inv.reservedStock}</td>
                     <td><strong>${inv.availableStock}</strong></td>
                     <td>${statusBadge}</td>
-                    <td><div class="sync-badges" id="sync-badges-${inv.id}">${syncBadges}</div></td>
                     <td>
                         <button class="btn btn-success btn-sm" id="update-btn-${inv.id}"
                                 onclick="app.updateStock(${inv.id}, ${inv.productId}, ${inv.outletId})">
@@ -457,14 +596,6 @@ const app = (() => {
                             <div class="metric-label">Requests</div>
                         </div>
                     </div>
-                    <div class="app-actions">
-                        <button class="btn btn-ghost btn-sm" onclick="app.checkHealth(${app_item.id})" id="health-btn-${app_item.id}">
-                            🏥 Health Check
-                        </button>
-                        <button class="btn btn-ghost btn-sm" onclick="app.toggleAppInventory(${app_item.id})">
-                            📦 Inventory
-                        </button>
-                    </div>
                     <div class="sync-status-list" id="app-inv-${app_item.id}"></div>
                 </div>`;
         }).join('');
@@ -527,7 +658,7 @@ const app = (() => {
     // === Orders ===
     async function loadOrders() {
         try {
-            orders = await apiGet(`/api/orders/vendor/${VENDOR_ID}`);
+            orders = await apiGet('/api/orders');
             renderOrders(orders);
         } catch (err) {
             console.error('Failed to load orders:', err);
@@ -545,7 +676,7 @@ const app = (() => {
                     <div class="empty-state">
                         <div class="empty-icon">🛒</div>
                         <h3>No Orders Yet</h3>
-                        <p>Orders will appear here when received from seller apps</p>
+                        <p>Orders will appear here when received</p>
                     </div>
                 </td></tr>`;
             return;
@@ -570,14 +701,53 @@ const app = (() => {
                 <tr>
                     <td><code style="color:var(--accent-cyan);font-size:12px">${escapeHtml(order.ondcOrderId)}</code></td>
                     <td>${escapeHtml(order.customerName || '—')}</td>
-                    <td>${escapeHtml(order.sellerAppName || '—')}</td>
+                    <td>${order.items && order.items.length ? order.items.map(i => escapeHtml(i.productName)).join(', ') : '—'}</td>
                     <td>${order.items ? order.items.length : 0}</td>
                     <td><strong>₹${(order.totalAmount || 0).toFixed(2)}</strong></td>
                     <td><span class="badge ${statusClass}"><span class="badge-dot"></span> ${order.status}</span></td>
-                    <td><span class="badge ${priorityClass}">${order.priority}</span></td>
                     <td style="color:var(--text-muted);font-size:12px">${dateStr}</td>
+                    <td>
+                        ${order.status === 'PENDING' ? `
+                            <div class="order-actions">
+                                <button class="btn btn-accept btn-sm" onclick="app.acceptOrder(${order.id})" title="Accept Order">
+                                    ✅ Accept
+                                </button>
+                                <button class="btn btn-reject btn-sm" onclick="app.rejectOrder(${order.id})" title="Reject Order">
+                                    ❌ Reject
+                                </button>
+                            </div>
+                        ` : `<span class="badge ${statusClass}" style="font-size:11px">${order.status}</span>`}
+                    </td>
                 </tr>`;
         }).join('');
+    }
+
+    // === Accept / Reject Orders ===
+    async function acceptOrder(orderId) {
+        if (!confirm('Accept this order? This will reserve inventory for all items.')) return;
+        try {
+            await apiPut(`/api/orders/${orderId}/accept`);
+            showToast('Order accepted — inventory reserved successfully', 'success');
+            loadOrders();        // refresh orders table
+            loadDashboard();     // refresh dashboard stats
+        } catch (err) {
+            console.error('Failed to accept order:', err);
+            showToast(err.message || 'Failed to accept order', 'error');
+        }
+    }
+
+    async function rejectOrder(orderId) {
+        const reason = prompt('Enter rejection reason (optional):');
+        if (reason === null) return;  // user cancelled the prompt
+        try {
+            await apiPut(`/api/orders/${orderId}/reject`, { reason: reason || 'No reason provided' });
+            showToast('Order rejected', 'error');
+            loadOrders();
+            loadDashboard();
+        } catch (err) {
+            console.error('Failed to reject order:', err);
+            showToast(err.message || 'Failed to reject order', 'error');
+        }
     }
 
     // === Toast Notifications ===
@@ -713,6 +883,179 @@ const app = (() => {
         showToast('Notifications cleared', 'default');
     }
 
+    // === Global Search ===
+    function setupSearch() {
+        const input = document.getElementById('global-search');
+        const dropdown = document.getElementById('search-results');
+        let debounceTimer = null;
+
+        input.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            const query = input.value.trim().toLowerCase();
+            if (query.length < 2) {
+                dropdown.style.display = 'none';
+                return;
+            }
+            debounceTimer = setTimeout(() => performSearch(query), 250);
+        });
+
+        input.addEventListener('focus', () => {
+            const query = input.value.trim().toLowerCase();
+            if (query.length >= 2) performSearch(query);
+        });
+
+        // Close dropdown on outside click
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.header-search')) {
+                dropdown.style.display = 'none';
+            }
+        });
+    }
+
+    async function performSearch(query) {
+        const dropdown = document.getElementById('search-results');
+        const results = [];
+
+        // Search orders (already loaded or fetch)
+        try {
+            if (!orders || orders.length === 0) {
+                orders = await apiGet(`/api/orders/vendor/${VENDOR_ID}`);
+            }
+            orders.forEach(order => {
+                const matchFields = [
+                    order.ondcOrderId,
+                    order.customerName,
+                    order.sellerAppName,
+                    order.status,
+                    ...(order.items || []).map(i => i.productName)
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                if (matchFields.includes(query)) {
+                    results.push({
+                        type: 'order',
+                        icon: '🛒',
+                        title: order.ondcOrderId,
+                        subtitle: `${order.customerName || '—'} · ₹${(order.totalAmount || 0).toFixed(2)} · ${order.status}`,
+                        tab: 'orders'
+                    });
+                }
+            });
+        } catch (e) { /* ignore */ }
+
+        // Search inventory
+        try {
+            if (!inventoryData || inventoryData.length === 0) {
+                inventoryData = await apiGet(`/api/inventory/vendor/${VENDOR_ID}`);
+            }
+            inventoryData.forEach(inv => {
+                const matchFields = [
+                    inv.productName,
+                    inv.productSku,
+                    inv.outletName
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                if (matchFields.includes(query)) {
+                    results.push({
+                        type: 'inventory',
+                        icon: '📦',
+                        title: inv.productName,
+                        subtitle: `SKU: ${inv.productSku || '—'} · Stock: ${inv.availableStock ?? inv.totalStock} · ${inv.outletName || ''}`,
+                        tab: 'inventory',
+                        searchQuery: query
+                    });
+                }
+            });
+        } catch (e) { /* ignore */ }
+
+        // Search seller apps
+        try {
+            if (!sellerApps || sellerApps.length === 0) {
+                sellerApps = await apiGet(`/api/seller-apps/vendor/${VENDOR_ID}`);
+            }
+            sellerApps.forEach(sa => {
+                const matchFields = [
+                    sa.name,
+                    sa.apiEndpoint,
+                    sa.status
+                ].filter(Boolean).join(' ').toLowerCase();
+
+                if (matchFields.includes(query)) {
+                    results.push({
+                        type: 'seller-app',
+                        icon: '🔗',
+                        title: sa.name,
+                        subtitle: `${sa.status} · ${sa.apiEndpoint || ''}`,
+                        tab: 'seller-apps'
+                    });
+                }
+            });
+        } catch (e) { /* ignore */ }
+
+        // Render results
+        if (results.length === 0) {
+            dropdown.innerHTML = '<div class="search-no-results">No results found</div>';
+        } else {
+            dropdown.innerHTML = results.slice(0, 10).map(r => {
+                const clickAction = r.searchQuery
+                    ? `app.filterInventory('${r.searchQuery.replace(/'/g, "\\'")}')`
+                    : `app.switchTab('${r.tab}')`;
+                return `
+                <div class="search-result-item" onclick="${clickAction}; document.getElementById('search-results').style.display='none';">
+                    <span class="search-result-icon">${r.icon}</span>
+                    <div class="search-result-text">
+                        <div class="search-result-title">${escapeHtml(r.title)}</div>
+                        <div class="search-result-subtitle">${escapeHtml(r.subtitle)}</div>
+                    </div>
+                    <span class="search-result-type">${r.type}</span>
+                </div>
+            `}).join('');
+        }
+        dropdown.style.display = 'block';
+    }
+
+    // === Inventory Filter from Search ===
+    function filterInventory(query) {
+        // Switch tab UI without triggering loadInventory
+        document.querySelectorAll('.nav-item[data-tab]').forEach(n => n.classList.remove('active'));
+        const navItem = document.querySelector('.nav-item[data-tab="inventory"]');
+        if (navItem) navItem.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        const tab = document.getElementById('tab-inventory');
+        if (tab) tab.classList.add('active');
+
+        const doFilter = () => {
+            const filtered = inventoryData.filter(inv => {
+                const matchFields = [
+                    inv.productName,
+                    inv.productSku,
+                    inv.outletName
+                ].filter(Boolean).join(' ').toLowerCase();
+                return matchFields.includes(query.toLowerCase());
+            });
+            renderInventoryTable(filtered);
+            // Show filter banner
+            const banner = document.getElementById('inventory-filter-banner');
+            const bannerText = document.getElementById('inventory-filter-text');
+            bannerText.textContent = `Showing ${filtered.length} result${filtered.length !== 1 ? 's' : ''} for "${query}"`;
+            banner.style.display = 'flex';
+        };
+
+        if (inventoryData && inventoryData.length > 0) {
+            doFilter();
+        } else {
+            apiGet(`/api/inventory/vendor/${VENDOR_ID}`).then(data => {
+                inventoryData = data;
+                doFilter();
+            });
+        }
+    }
+
+    function clearInventoryFilter() {
+        document.getElementById('inventory-filter-banner').style.display = 'none';
+        document.getElementById('global-search').value = '';
+        renderInventoryTable(inventoryData);
+    }
+
     // === Public API ===
     return {
         init,
@@ -726,6 +1069,10 @@ const app = (() => {
         submitAddInventory,
         toggleNotifications,
         clearNotifications,
+        acceptOrder,
+        rejectOrder,
+        filterInventory,
+        clearInventoryFilter,
         showToast
     };
 })();
