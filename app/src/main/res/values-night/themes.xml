@@ -1,0 +1,28 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme (night). -->
+    <style name="Base.Theme.ONDC" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary_light</item>
+        <item name="colorOnPrimary">#FF002559</item>
+        <item name="colorPrimaryContainer">#FF2E56B8</item>
+        <item name="colorOnPrimaryContainer">#FFDBE2FF</item>
+        <item name="colorSecondary">@color/secondary_container</item>
+        <item name="colorOnSecondary">#FF0E2447</item>
+        <item name="colorSecondaryContainer">#FF2A4478</item>
+        <item name="colorOnSecondaryContainer">#FFD6E3FF</item>
+        <item name="colorTertiary">#FFCFBDFF</item>
+        <item name="colorTertiaryContainer">#FF53448C</item>
+        <item name="colorError">#FFFFB4AB</item>
+        <item name="colorOnError">#FF690005</item>
+        <item name="colorErrorContainer">#FF93000A</item>
+        <item name="android:colorBackground">#FF111318</item>
+        <item name="colorOnBackground">#FFE2E3EA</item>
+        <item name="colorSurface">#FF1A1C22</item>
+        <item name="colorOnSurface">#FFE2E3EA</item>
+        <item name="colorSurfaceVariant">#FF2D303A</item>
+        <item name="colorOnSurfaceVariant">#FFC4C6D0</item>
+        <item name="colorOutline">#FF8E9099</item>
+        <item name="colorOutlineVariant">#FF44474F</item>
+        <item name="android:statusBarColor">#FF0D1017</item>
+        <item name="android:navigationBarColor">#FF1A1C22</item>
+    </style>
+</resources>

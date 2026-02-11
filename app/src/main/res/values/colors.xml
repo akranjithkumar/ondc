@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary -->
+    <color name="primary">#FF4C76EB</color>
+    <color name="primary_dark">#FF3A5FCC</color>
+    <color name="primary_light">#FF7B9AF0</color>
+    <color name="primary_variant">#FF3D5FCF</color>
+    <color name="on_primary">#FFFFFFFF</color>
+    <color name="primary_container">#FFDBE2FF</color>
+    <color name="on_primary_container">#FF0D2463</color>
+
+    <!-- Secondary -->
+    <color name="secondary">#FF3D5A99</color>
+    <color name="secondary_container">#FFD6E3FF</color>
+    <color name="on_secondary">#FFFFFFFF</color>
+    <color name="on_secondary_container">#FF142D55</color>
+
+    <!-- Tertiary -->
+    <color name="tertiary">#FF6B5CA5</color>
+    <color name="tertiary_container">#FFEDDCFF</color>
+
+    <!-- Background & Surface -->
+    <color name="background">#FFF5F7FB</color>
+    <color name="on_background">#FF1A1C20</color>
+    <color name="surface">#FFFFFFFF</color>
+    <color name="on_surface">#FF1A1C20</color>
+    <color name="surface_variant">#FFEEF0F8</color>
+    <color name="on_surface_variant">#FF44474F</color>
+    <color name="surface_container">#FFF0F2FA</color>
+    <color name="surface_container_low">#FFF5F7FB</color>
+    <color name="surface_container_high">#FFE8EAF2</color>
+    <color name="outline">#FF74777F</color>
+    <color name="outline_variant">#FFC4C6D0</color>
+
+    <!-- Semantic Colors -->
+    <color name="success">#FF2ECC71</color>
+    <color name="success_container">#FFD4F5E0</color>
+    <color name="on_success">#FFFFFFFF</color>
+    <color name="warning">#FFF39C12</color>
+    <color name="warning_container">#FFFDEBD0</color>
+    <color name="on_warning">#FF3E2503</color>
+    <color name="error">#FFE74C3C</color>
+    <color name="error_container">#FFFCE4E4</color>
+    <color name="on_error">#FFFFFFFF</color>
+
+    <!-- Priority Colors -->
+    <color name="priority_high">#FFE74C3C</color>
+    <color name="priority_medium">#FFF39C12</color>
+    <color name="priority_low">#FF2ECC71</color>
+
+    <!-- Status Colors -->
+    <color name="status_pending">#FFF39C12</color>
+    <color name="status_accepted">#FF4C76EB</color>
+    <color name="status_rejected">#FFE74C3C</color>
+    <color name="status_fulfilled">#FF2ECC71</color>
+    <color name="status_partial">#FF9B59B6</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#FF1A1C20</color>
+    <color name="text_secondary">#FF5F6368</color>
+    <color name="text_hint">#FF9AA0A6</color>
+    <color name="text_disabled">#FFBDC1C6</color>
+
+    <!-- Divider -->
+    <color name="divider">#1F000000</color>
+
+    <!-- Standard -->
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Bottom Nav -->
+    <color name="bottom_nav_bg">#FFFFFFFF</color>
+    <color name="bottom_nav_active">#FF4C76EB</color>
+    <color name="bottom_nav_inactive">#FF9AA0A6</color>
+
+    <!-- Card Gradient -->
+    <color name="gradient_start">#FF4C76EB</color>
+    <color name="gradient_end">#FF3D5A99</color>
+
+    <!-- Shimmer / Placeholder -->
+    <color name="shimmer_bg">#FFE8EAF2</color>
+    <color name="shimmer_highlight">#FFF5F7FB</color>
+
+    <!-- Stock Level -->
+    <color name="stock_healthy">#FF2ECC71</color>
+    <color name="stock_low">#FFF39C12</color>
+    <color name="stock_critical">#FFE74C3C</color>
+</resources>

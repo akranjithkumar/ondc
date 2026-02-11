@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">ONDC Vendor Hub</string>
+
+    <!-- Navigation -->
+    <string name="nav_dashboard">Dashboard</string>
+    <string name="nav_orders">Orders</string>
+    <string name="nav_inventory">Inventory</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Dashboard</string>
+    <string name="dashboard_welcome">Welcome back</string>
+    <string name="stat_total_orders">Total Orders</string>
+    <string name="stat_revenue">Revenue</string>
+    <string name="stat_fulfillment_rate">Fulfillment</string>
+    <string name="stat_active_outlets">Active Outlets</string>
+    <string name="stat_pending_orders">Pending</string>
+    <string name="stat_accepted_orders">Accepted</string>
+    <string name="section_seller_apps">Seller App Health</string>
+    <string name="section_low_stock">Low Stock Alerts</string>
+    <string name="section_recent_orders">Recent Orders</string>
+    <string name="section_quick_actions">Quick Actions</string>
+    <string name="action_view_all">View All</string>
+    <string name="action_sync_inventory">Sync Inventory</string>
+    <string name="action_view_orders">View Orders</string>
+
+    <!-- Orders -->
+    <string name="orders_title">Orders</string>
+    <string name="filter_all">All</string>
+    <string name="filter_pending">Pending</string>
+    <string name="filter_accepted">Accepted</string>
+    <string name="filter_rejected">Rejected</string>
+    <string name="filter_fulfilled">Fulfilled</string>
+    <string name="order_id_prefix">Order #</string>
+    <string name="btn_accept">Accept</string>
+    <string name="btn_reject">Reject</string>
+    <string name="btn_partial_fulfill">Partial Fulfill</string>
+    <string name="order_accepted_success">Order accepted successfully</string>
+    <string name="order_rejected_success">Order rejected</string>
+    <string name="order_items_label">Items:</string>
+    <string name="order_customer_label">Customer:</string>
+    <string name="order_delivery_label">Delivery:</string>
+    <string name="order_priority_label">Priority:</string>
+    <string name="reject_dialog_title">Reject Order</string>
+    <string name="reject_dialog_hint">Enter reason for rejection…</string>
+    <string name="reject_dialog_confirm">Reject</string>
+    <string name="reject_dialog_cancel">Cancel</string>
+
+    <!-- Inventory -->
+    <string name="inventory_title">Inventory</string>
+    <string name="filter_all_stock">All Stock</string>
+    <string name="filter_low_stock">Low Stock</string>
+    <string name="stock_available">Available</string>
+    <string name="stock_reserved">Reserved</string>
+    <string name="stock_reorder_level">Reorder at</string>
+    <string name="btn_reserve">Reserve</string>
+    <string name="btn_release">Release</string>
+    <string name="stock_synced">Inventory synced</string>
+    <string name="low_stock_alert">⚠️ Below reorder level</string>
+
+    <!-- States -->
+    <string name="state_loading">Loading…</string>
+    <string name="state_empty_orders">No orders found</string>
+    <string name="state_empty_inventory">No inventory items</string>
+    <string name="state_empty_alerts">All stock levels healthy!</string>
+    <string name="state_error">Something went wrong</string>
+    <string name="state_no_network">No internet connection</string>
+    <string name="btn_retry">Retry</string>
+
+    <!-- Error Messages -->
+    <string name="error_server">Server error. Please try later.</string>
+    <string name="error_timeout">Request timed out. Check connection.</string>
+    <string name="error_not_found">Resource not found.</string>
+    <string name="error_unknown">An unexpected error occurred.</string>
+    <string name="error_network">Network error. Check your connection.</string>
+
+    <!-- General -->
+    <string name="vendor_id_default">1</string>
+    <string name="currency_symbol">₹</string>
+    <string name="percentage_symbol">%%</string>
+</resources>
