@@ -1,6 +1,6 @@
 # Unified Vendor Control Platform for ONDC Q-Commerce 🚀
 
-> **Team Algorithm Avengers** > *Dev Arena | Department of Information Technology*
+> **Team Algorithm Avengers** > *Dev Arena*
 
 A vendor-centric middleware platform acting as the single control layer between ONDC seller apps and vendor operations, transforming vendors from passive order receivers into active decision-makers.
 
@@ -33,13 +33,13 @@ Vendors currently operate on multiple ONDC seller apps simultaneously, leading t
 
 ## 💡 Solution Overview
 
-Our solution is a **Vendor-Centric Web Application** that sits between ONDC Seller Apps and Vendor Operations.
+Our solution is a **Vendor-Centric Mobile and Web Application** that sits between ONDC Seller Apps and Vendor Operations.
 
 It acts as a **Network-Agnostic Layer**, meaning it works with multiple seller apps simultaneously. Unlike standard seller apps, this system is built exclusively for vendors, giving them authority over their inventory and order flow.
 
 ### Core Value Proposition
 * **Single Source of Truth:** Centralized inventory management prevents cross-app overselling.
-* **Intelligent Decision Engine:** Prioritizes orders based on load, distance, and SLA.
+* **Intelligent Decision Engine:** Prioritizes orders based on load.
 * **Active Decision Making:** Transforms vendors from passive participants to active controllers of their digital commerce operations.
 
 ---
@@ -48,10 +48,7 @@ It acts as a **Network-Agnostic Layer**, meaning it works with multiple seller a
 
 1.  **Real-time Inventory Reservation:** Instantly locks inventory across all connected seller apps when an order is received on one.
 2.  **Centralized Order Management:** A single dashboard to view, accept, reject, or partially fulfill orders from any ONDC source.
-3.  **Smart Routing:** Automatically routes orders to the optimal outlet or dark store based on proximity and stock levels.
 4.  **Health Monitoring:** Tracks the connectivity and health of linked Seller Apps.
-5.  **Predictive Replenishment:** AI-driven alerts for low stock based on demand forecasting.
-6.  **Offline Handling:** Fallback support via SMS/WhatsApp for vendors with poor connectivity.
 7.  **Performance Tracking:** Monitors vendor reputation and operational metrics.
 
 ---
@@ -60,21 +57,18 @@ It acts as a **Network-Agnostic Layer**, meaning it works with multiple seller a
 
 The platform operates as a middleware solution:
 
-1.  **Vendor Layer:** Web Dashboard & Offline Interface (SMS/WhatsApp).
+1.  **Vendor Layer:** Web Dashboard / Android app.
 2.  **Control Layer (Middleware):**
     * *Inventory Engine:* Manages stock reservation.
     * *Decision Engine:* logic for priority, partial fulfillment, and routing.
-    * *Forecasting Engine:* Demand prediction.
 3.  **Integration Layer:** Connects to various ONDC Seller Apps via APIs.
 
 *(Note: Add your specific tech stack details below)*
 
 ### Tech Stack
-* **Frontend:** React.js / Next.js (Suggested)
-* **Backend:** Node.js / Python (Suggested)
-* **Database:** MongoDB / PostgreSQL (Suggested)
-* **ONDC Protocol:** Beckn Protocol compliant adapters
-* **Notifications:** Twilio / WhatsApp Business API
+* **Frontend:** HTML,CSS,Javascript
+* **Backend:** Springboot
+* **Database:** MySQL
 
 ---
 
@@ -125,9 +119,8 @@ This project directly contributes to the following UN SDGs:
 *(Adjust the following commands based on your actual repo structure)*
 
 ### Prerequisites
-* Node.js (v16+) / Python (3.8+)
-* MongoDB / PostgreSQL
-* ONDC Seller App Credentials
+* Java 8+
+* MySQL / PostgreSQL
 
 ### Installation
 
@@ -135,30 +128,6 @@ This project directly contributes to the following UN SDGs:
     ```bash
     git clone [https://github.com/akranjithkumar/ondc.git](https://github.com/akranjithkumar/ondc.git)
     cd ondc
-    ```
-
-2.  **Install Dependencies**
-    ```bash
-    # For Backend
-    cd server
-    npm install
-    
-    # For Frontend
-    cd ../client
-    npm install
-    ```
-
-3.  **Environment Setup**
-    * Create a `.env` file in the root directory.
-    * Add your ONDC BAP/BPP keys, Database URL, and SMS Gateway keys.
-
-4.  **Run the Application**
-    ```bash
-    # Start Backend
-    npm run server
-    
-    # Start Frontend
-    npm run client
     ```
 
 ---
