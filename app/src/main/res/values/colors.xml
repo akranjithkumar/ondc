@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    
+    <!-- ONDC Brand Colors -->
+    <color name="primary">#4C76EB</color>
+    <color name="primary_light">#6B8EF5</color>
+    <color name="primary_dark">#2A3F7A</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="primary_container">#DBE2FF</color>
+    <color name="on_primary_container">#00174A</color>
+    
+    <color name="secondary">#3D5A99</color>
+    <color name="on_secondary">#FFFFFF</color>
+    <color name="secondary_container">#DCE2F9</color>
+    <color name="on_secondary_container">#151B2C</color>
+    
+    <color name="tertiary">#725573</color>
+    <color name="on_tertiary">#FFFFFF</color>
+    <color name="tertiary_container">#FDD7FA</color>
+    <color name="on_tertiary_container">#2A132C</color>
+    
+    <color name="error">#BA1A1A</color>
+    <color name="error_container">#FFDAD6</color>
+    <color name="on_error">#FFFFFF</color>
+    <color name="on_error_container">#410002</color>
+    
+    <color name="background">#FAFBFF</color>
+    <color name="on_background">#1B1B1F</color>
+    <color name="surface">#FAFBFF</color>
+    <color name="on_surface">#1B1B1F</color>
+    <color name="surface_variant">#E8EDF9</color>
+    <color name="on_surface_variant">#44474F</color>
+    <color name="outline">#757780</color>
+    <color name="outline_variant">#C4C6D0</color>
+    
+    <!-- Status Colors -->
+    <color name="success">#2ECC71</color>
+    <color name="success_bg">#E8F8F0</color>
+    <color name="warning">#F39C12</color>
+    <color name="warning_bg">#FEF5E7</color>
+    <color name="danger">#E74C3C</color>
+    <color name="danger_bg">#FDEDEC</color>
+    
+    <!-- Surface Tints -->
+    <color name="surface_tint_light">#F0F3FF</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="divider">#E0E3EB</color>
+    
+    <!-- Gradient Colors -->
+    <color name="gradient_start">#4C76EB</color>
+    <color name="gradient_center">#3D5A99</color>
+    <color name="gradient_end">#2A3F7A</color>
+    
+    <!-- Bottom Nav -->
+    <color name="bottom_nav_bg">#FFFFFF</color>
+    <color name="nav_indicator">#DBE2FF</color>
+    
+    <!-- Dark Theme Colors -->
+    <color name="dark_background">#1A1B1F</color>
+    <color name="dark_surface">#1A1B1F</color>
+    <color name="dark_surface_variant">#2B2D35</color>
+    <color name="dark_card">#252730</color>
+    <color name="dark_on_surface">#E3E2E6</color>
+    <color name="dark_on_surface_variant">#C4C6D0</color>
+    <color name="dark_primary">#B3C5FF</color>
+    <color name="dark_on_primary">#002D6E</color>
+    <color name="dark_primary_container">#1D4199</color>
+    <color name="dark_on_primary_container">#DBE2FF</color>
+</resources>

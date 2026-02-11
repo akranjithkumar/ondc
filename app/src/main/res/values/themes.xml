@@ -1,0 +1,96 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.ONDCBuyer" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary Colors -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+        
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="colorSecondaryContainer">@color/secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
+        
+        <item name="colorTertiary">@color/tertiary</item>
+        <item name="colorOnTertiary">@color/on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/on_tertiary_container</item>
+
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/on_error</item>
+        <item name="colorErrorContainer">@color/error_container</item>
+        <item name="colorOnErrorContainer">@color/on_error_container</item>
+
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorOnBackground">@color/on_background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+        <item name="colorOutline">@color/outline</item>
+        
+        <!-- Status Bar -->
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:navigationBarColor">@color/bottom_nav_bg</item>
+        
+        <!-- Bottom Nav Styling -->
+        <item name="bottomNavigationStyle">@style/Widget.ONDCBuyer.BottomNav</item>
+        
+        <!-- Material Card Styling -->
+        <item name="materialCardViewStyle">@style/Widget.ONDCBuyer.Card</item>
+    </style>
+
+    <style name="Theme.ONDCBuyer" parent="Base.Theme.ONDCBuyer" />
+    
+    <!-- Bottom Navigation Style -->
+    <style name="Widget.ONDCBuyer.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="backgroundTint">@color/bottom_nav_bg</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.ONDCBuyer.BottomNav.ActiveIndicator</item>
+        <item name="labelVisibilityMode">labeled</item>
+        <item name="itemIconTint">@color/primary</item>
+        <item name="itemTextColor">@color/primary</item>
+        <item name="elevation">8dp</item>
+    </style>
+    
+    <style name="Widget.ONDCBuyer.BottomNav.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="color">@color/nav_indicator</item>
+        <item name="android:width">64dp</item>
+        <item name="android:height">32dp</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.ONDCBuyer.SmallComponent</item>
+    </style>
+    
+    <style name="ShapeAppearance.ONDCBuyer.SmallComponent" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+    
+    <!-- Material Card Style -->
+    <style name="Widget.ONDCBuyer.Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="cardBackgroundColor">@color/card_background</item>
+    </style>
+    
+    <!-- Checkout Button Style -->
+    <style name="Widget.ONDCBuyer.Button.Checkout" parent="Widget.Material3.Button">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="cornerRadius">12dp</item>
+        <item name="backgroundTint">@color/primary</item>
+        <item name="android:paddingTop">14dp</item>
+        <item name="android:paddingBottom">14dp</item>
+    </style>
+    
+    <!-- Header Title Style -->
+    <style name="TextAppearance.ONDCBuyer.Header" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textColor">@color/on_background</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+    <!-- Section Subtitle -->
+    <style name="TextAppearance.ONDCBuyer.Subtitle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/on_surface_variant</item>
+    </style>
+</resources>

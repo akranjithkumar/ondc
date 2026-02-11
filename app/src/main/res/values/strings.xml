@@ -1,0 +1,49 @@
+<resources>
+    <string name="app_name">ONDC Buyer</string>
+    <string name="title_home">Marketplace</string>
+    <string name="title_cart">My Cart</string>
+    <string name="title_orders">Orders</string>
+    <string name="action_add_to_cart">Add</string>
+    <string name="action_checkout">Place Order</string>
+    <string name="action_retry">Retry</string>
+    <string name="action_browse">Browse Stores</string>
+    <string name="label_total">Total: </string>
+    <string name="label_items">Items</string>
+    
+    <!-- Success Messages -->
+    <string name="msg_order_placed">Order placed successfully!</string>
+    <string name="msg_order_placed_subtitle">Your order has been sent to the vendor</string>
+    
+    <!-- Empty State Messages -->
+    <string name="msg_cart_empty">Your cart is empty</string>
+    <string name="msg_cart_empty_subtitle">Browse stores and add items to get started</string>
+    <string name="msg_orders_empty">No orders yet</string>
+    <string name="msg_orders_empty_subtitle">Your order history will appear here</string>
+    <string name="msg_no_vendors">No stores found</string>
+    <string name="msg_no_vendors_subtitle">Check back later for new stores</string>
+    <string name="msg_no_products">No products available</string>
+    <string name="msg_no_products_subtitle">This store has no products right now</string>
+    
+    <!-- Error Messages -->
+    <string name="error_generic">Something went wrong</string>
+    <string name="error_generic_subtitle">Please try again later</string>
+    <string name="error_no_internet">No internet connection</string>
+    <string name="error_no_internet_subtitle">Check your connection and try again</string>
+    <string name="error_server">Server unavailable</string>
+    <string name="error_server_subtitle">The server is not responding. Try again later.</string>
+    <string name="error_timeout">Connection timed out</string>
+    <string name="error_timeout_subtitle">The request took too long. Please retry.</string>
+    
+    <!-- Status Labels -->
+    <string name="status_pending">Pending</string>
+    <string name="status_accepted">Accepted</string>
+    <string name="status_rejected">Rejected</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_cancelled">Cancelled</string>
+    
+    <!-- Home Screen -->
+    <string name="home_welcome">Welcome! 👋</string>
+    <string name="home_subtitle">Order from your favorite local stores</string>
+    
+    <string name="currency_symbol">₹</string>
+</resources>
